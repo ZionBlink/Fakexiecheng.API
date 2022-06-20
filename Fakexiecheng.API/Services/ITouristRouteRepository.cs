@@ -1,4 +1,5 @@
-﻿using Fakexiecheng.API.Moldes;
+﻿using Fakexiecheng.API.helper;
+using Fakexiecheng.API.Moldes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,12 +9,14 @@ namespace Fakexiecheng.API.Services
 {
    public interface ITouristRouteRepository
     {
-       Task<IEnumerable<TouristRoute>> GetTouristRoutesAsync(
+       Task<PaginationList<TouristRoute>> GetTouristRoutesAsync(
            string keyword, 
            string ratingOperator ,
            int? ratingValue,
            int pageSize,
-           int pageNumber
+           int pageNumber,
+           string orderBy
+
            
            
            );
@@ -49,7 +52,7 @@ namespace Fakexiecheng.API.Services
 
         Task AddOrderAsync(Order order);
 
-        Task<IEnumerable<Order>> GetOrdersByUserId(string userId);
+        Task<PaginationList<Order>> GetOrdersByUserId(string userId, int pageSize, int pageNumber);
 
 
        Task<Order> GetOrderById(Guid orderID);

@@ -10,6 +10,7 @@ using Fakexiecheng.API.Services;
 using AutoMapper;
 
 using Fakexiecheng.API.Dtos;
+using Fakexiecheng.API.ResoureceParameters;
 
 namespace Fakexiecheng.API.controllers
 {   
@@ -36,7 +37,9 @@ namespace Fakexiecheng.API.controllers
 
         [HttpGet]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> GetOrders() 
+        public async Task<IActionResult> GetOrders(
+            [FromQuery] PaginationResourceParamaters paginationResourceParamaters
+            ) 
         
         
         {
@@ -44,7 +47,7 @@ namespace Fakexiecheng.API.controllers
             var userId = _httpContextAccessor
                .HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
             //2
-            var orders = await _touristRouteRepository.GetOrdersByUserId(userId);
+            var orders = await _touristRouteRepository.GetOrdersByUserId(userId, paginationResourceParamaters.PageSize, paginationResourceParamaters.PageNumber);
 
             return Ok(_mapper.Map<IEnumerable<OrderDto>>(orders));
         }

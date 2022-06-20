@@ -20,6 +20,7 @@ using System.Text;
 using Microsoft.AspNetCore.Identity;
 using AutoMapper;
 using Fakexiecheng.API.Moldes;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 
 namespace Fakexiecheng.API
 {
@@ -96,6 +97,10 @@ namespace Fakexiecheng.API
 
             //
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+            services.AddHttpClient();
+            services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
+
+            services.AddTransient<IPropertyMappingService, PropertyMappingService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

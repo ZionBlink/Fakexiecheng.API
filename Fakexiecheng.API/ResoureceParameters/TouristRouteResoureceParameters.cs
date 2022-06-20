@@ -9,8 +9,8 @@ namespace Fakexiecheng.API.ResoureceParameters
     public class TouristRouteResoureceParameters
 
     {
-        private int _pageNumber = 1;
-        public int Pagenumber { get { return _pageNumber; }
+       /* private int _pageNumber = 1;
+        public int PageNumber { get { return _pageNumber; }
             set { if (value>=1) 
                 {
                     _pageNumber = value;
@@ -21,7 +21,10 @@ namespace Fakexiecheng.API.ResoureceParameters
         public int PageSize { get { return _pageSize; } set { if (value>=1) {
                     _pageSize = (value > maxPageSize) ? maxPageSize : value;
                 
-                } }  }
+                } }  }*/
+
+
+        public string OrderBy { get; set; }
         public string Keyword { get; set; }
         public string RatingOperator { get; set; }
         public int? RatingValue { get; set; }

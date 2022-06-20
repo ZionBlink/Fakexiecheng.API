@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Fakexiecheng.API.Database;
+using Fakexiecheng.API.Dtos;
+using Fakexiecheng.API.helper;
 using Fakexiecheng.API.Moldes;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,9 +14,12 @@ namespace Fakexiecheng.API.Services
     {
 
         private readonly AppDbContext _context;
+        private readonly IPropertyMappingService _propertyMappingService;
 
-        public TouristRouteRepository(AppDbContext context) {
+        public TouristRouteRepository(AppDbContext context, IPropertyMappingService propertyMappingService)
+        {
             _context = context;
+            _propertyMappingService = propertyMappingService;
         }
 
         public async Task<TouristRoute> GetTouristRouteAsync(Guid touristRouteId)
@@ -22,12 +27,13 @@ namespace Fakexiecheng.API.Services
             return await _context.TouristRoutes.Include(t => t.TouristRoutePictures).FirstOrDefaultAsync(n => n.Id == touristRouteId);
         }
 
-        public  async Task<IEnumerable<TouristRoute>> GetTouristRoutesAsync(
+        public  async Task<PaginationList<TouristRoute>> GetTouristRoutesAsync(
             string keyword,
              string ratingOperator,
             int? ratingValue,
             int pageSize,
-            int pageNumber
+            int pageNumber,
+            string orderBy
             )
         {
             IQueryable<TouristRoute> result = _context
@@ -45,11 +51,20 @@ namespace Fakexiecheng.API.Services
                     _ => result.Where(t => t.Rating == ratingValue),
                 };
             }
-            var skip = (pageNumber - 1) * pageSize;
-            result = result.Skip(skip);
-            result = result.Take(pageSize);
+            if (!string.IsNullOrWhiteSpace(orderBy))
+            {
+               /* if (orderBy.ToLowerInvariant()=="originalprice")//ToLowerInvariant仅限英语效率高
+                {
+                    result = result.OrderBy(t => t.OriginalPrice);
+                }*/
+                var touristRouteMappingDictionary = _propertyMappingService
+                    .GetPropertyMapping<TouristRouteDto,TouristRoute>();
+               result= result.ApplySort(orderBy, touristRouteMappingDictionary);
 
-            return await result.ToListAsync();
+            }
+
+
+            return await PaginationList<TouristRoute>.CreateAsync(pageNumber, pageSize, result);
         }
         public async Task<bool> TouristRouteExistsAsync(Guid touristRouteId)
         {
@@ -167,9 +182,12 @@ namespace Fakexiecheng.API.Services
             await _context.Orders.AddAsync(order);
         }
 
-        public async Task<IEnumerable<Order>> GetOrdersByUserId(string userId)
+        public async Task<PaginationList<Order>> GetOrdersByUserId(string userId ,int pageSize ,int pageNumber)
         {
-          return  await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
+            // return  await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
+            IQueryable<Order> result = _context.Orders.Where(o => o.UserId == userId);
+            return await PaginationList<Order>.CreateAsync(pageNumber, pageSize, result);
+             
         }
 
         public async Task<Order> GetOrderById(Guid orderID)
