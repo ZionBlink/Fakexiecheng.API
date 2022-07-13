@@ -101,6 +101,18 @@ namespace Fakexiecheng.API
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();
 
             services.AddTransient<IPropertyMappingService, PropertyMappingService>();
+
+            services.Configure<MvcOptions>(config =>
+            {
+                var outputFormatter = config.OutputFormatters.OfType<NewtonsoftJsonOutputFormatter>()?.FirstOrDefault();
+                if (outputFormatter != null)
+                {
+                    outputFormatter.SupportedMediaTypes.Add("application/vnd.blink.hateoas+json");
+
+                }
+
+            });
+
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

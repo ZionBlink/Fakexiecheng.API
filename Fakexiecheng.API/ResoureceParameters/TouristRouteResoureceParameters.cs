@@ -48,6 +48,7 @@ namespace Fakexiecheng.API.ResoureceParameters
             }
         }
 
+        public string Fields { get; set; }
 
     }
 }

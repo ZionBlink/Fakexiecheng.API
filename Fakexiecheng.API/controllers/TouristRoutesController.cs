@@ -16,6 +16,8 @@ using Microsoft.AspNetCore.Authorization;
 using Fakexiecheng.API.helper;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Microsoft.Net.Http.Headers;
+using System.Dynamic;
 
 namespace Fakexiecheng.API.controllers
 {
@@ -27,24 +29,28 @@ namespace Fakexiecheng.API.controllers
         private readonly IMapper _mapper;
 
         private readonly IUrlHelper _urlHelper;
+        private readonly IPropertyMappingService _propertyMappingService;
 
 
         public TouristRoutesController(
             ITouristRouteRepository touristRouteRepository,
             IMapper mapper,
             IUrlHelperFactory urlHelperFactory,
-            IActionContextAccessor  actionContextAccessor
+            IActionContextAccessor  actionContextAccessor,
 
+
+            IPropertyMappingService propertyMappingService
             )
         {
             _touristRouteRepository = touristRouteRepository;
             _mapper = mapper;
             _urlHelper = urlHelperFactory.GetUrlHelper(actionContextAccessor.ActionContext);
+            _propertyMappingService = propertyMappingService;
         }
 
         private string GenerateTouristRouteResourceURL(
-            [FromQuery] TouristRouteResoureceParameters parameters,
-            [FromQuery] PaginationResourceParamaters paginationResourceParamaters,
+             TouristRouteResoureceParameters parameters,
+             PaginationResourceParamaters paginationResourceParamaters,
             ResourceUrlType type
             )
         {
@@ -52,7 +58,10 @@ namespace Fakexiecheng.API.controllers
             {
                 ResourceUrlType.PreviousPage => _urlHelper.Link("GetTouristRoutes",
                 new
-                {
+                {  
+                    
+                    fields=parameters.Fields,
+                    OrderBy = parameters.OrderBy,
                     keyword = parameters.Keyword,
                     rating = parameters.Rating,
                     pageNumber = paginationResourceParamaters.PageNumber - 1,
@@ -63,6 +72,8 @@ namespace Fakexiecheng.API.controllers
                 ),
                 ResourceUrlType.NextPage => _urlHelper.Link("GetTouristRoutes", new
                 {
+                    fields = parameters.Fields,
+                    OrderBy = parameters.OrderBy,
                     keyword = parameters.Keyword,
                     rating = parameters.Rating,
                     pageNumber = paginationResourceParamaters.PageNumber + 1,
@@ -72,6 +83,8 @@ namespace Fakexiecheng.API.controllers
                 _ => _urlHelper.Link("GetTouristRoutes",
                 new
                 {
+                    fields = parameters.Fields,
+                    OrderBy = parameters.OrderBy,
                     keyword = parameters.Keyword,
                     rating = parameters.Rating,
                     pageNumber = paginationResourceParamaters.PageNumber,
@@ -86,25 +99,36 @@ namespace Fakexiecheng.API.controllers
 
             };
         }
-
+        //application/ved.name.hateoas+json
+        [Produces("application/json", 
+            "application/vnd.blink.hateoas+json",
+            "application/vnd.blink.touristRoute.simplify+json",
+            "application/vnd.blink.touristRoute.simplify.hateoas+json")]
         [HttpGet(Name = "GetTouristRoutes")]
         [HttpHead]
         public async Task<IActionResult> GetTouristRoutes(
             [FromQuery] TouristRouteResoureceParameters parameters
-            ,[FromQuery] PaginationResourceParamaters paginationResourceParamaters
+            ,[FromQuery] PaginationResourceParamaters paginationResourceParamaters,
+            [FromHeader(Name ="Accept")] string mediaType
 
             )
-        {
-            /* Regex regex = new Regex(@"([A-Za-z0-9\-]+)(\d+)");
-             string operatorType =" ";
-             int raringVlaue = -1;
-             Match match = regex.Match(rating);
-             if (match.Success) {
-                 operatorType = match.Groups[1].Value;
-                 raringVlaue = Int32.Parse( match.Groups[2].Value);
+        {   //有list情况TryParseList
+            if (!MediaTypeHeaderValue.TryParse(mediaType, out MediaTypeHeaderValue parseMediaType)) {
+                return BadRequest();
+            
+            }
 
-             }*/
 
+            
+            if (!_propertyMappingService.IsMappingExists<TouristRouteDto, TouristRoute>(parameters.OrderBy))
+            {
+                return BadRequest("请输入正确的排序参数");
+            }
+
+            if (!_propertyMappingService.IsPropertiesExists<TouristRouteDto>(parameters.Fields)) {
+
+                return BadRequest("亲输入正确的塑型参数");
+            }
 
             var touristRoutesFromRepo = await _touristRouteRepository.GetTouristRoutesAsync(
                 parameters.Keyword,
@@ -117,7 +141,7 @@ namespace Fakexiecheng.API.controllers
             if (touristRoutesFromRepo == null || touristRoutesFromRepo.Count() <= 0) {
                 return NotFound("没有旅游路线");
             }
-            var touristRoutesDto = _mapper.Map<IEnumerable<TouristRouteDto>>(touristRoutesFromRepo);
+         //   var touristRoutesDto = _mapper.Map<IEnumerable<TouristRouteDto>>(touristRoutesFromRepo);
 
             var previousPageLink = touristRoutesFromRepo.HasPrevious
                 ? GenerateTouristRouteResourceURL(parameters, paginationResourceParamaters, ResourceUrlType.PreviousPage)
@@ -141,14 +165,100 @@ namespace Fakexiecheng.API.controllers
 
             Response.Headers.Add("x-pagination", Newtonsoft.Json.JsonConvert.SerializeObject(paginationMetadata));
 
-            return Ok(touristRoutesDto);
-        }
 
+
+            bool isHateoas = parseMediaType.SubTypeWithoutSuffix.EndsWith("hateoas", StringComparison.InvariantCultureIgnoreCase);
+
+            var primaryMediaType = isHateoas
+                ? parseMediaType.SubTypeWithoutSuffix
+                .Substring(0, parseMediaType.SubTypeWithoutSuffix.Length - 8)
+                : parseMediaType.SubTypeWithoutSuffix;
+
+            //  var touristRoutesDto = _mapper.Map<IEnumerable<TouristRouteDto>>(touristRoutesFromRepo);
+
+            //   var shapeDtoList = touristRoutesDto.ShapeDate(parameters.Fields);
+
+            IEnumerable<object> touristRoutesDto;
+            IEnumerable<ExpandoObject> shapedDtoList;
+
+            if (primaryMediaType == "vnd.blink.touristRoute.simplify")
+            {
+                touristRoutesDto = _mapper
+                    .Map<IEnumerable<TouristRouteSimplifyDto>>(touristRoutesFromRepo);
+
+                shapedDtoList = ((IEnumerable<TouristRouteSimplifyDto>)touristRoutesDto)
+                    .ShapeDate(parameters.Fields);
+            }
+            else
+            {
+                touristRoutesDto = _mapper
+                    .Map<IEnumerable<TouristRouteDto>>(touristRoutesFromRepo);
+                shapedDtoList =
+                    ((IEnumerable<TouristRouteDto>)touristRoutesDto)
+                    .ShapeDate(parameters.Fields);
+            }
+
+
+
+
+            if (isHateoas) {
+                var linkDto = CreateLinksForTouristRouteList(parameters, paginationResourceParamaters);
+
+                var shapedDtoWithLinklist = shapedDtoList.Select(t =>
+                {
+                    var touristRouteDictionary = t as IDictionary<string, object>;
+                    var links = CreateLinkForTouristRoute(
+                        (Guid)touristRouteDictionary["Id"], null);
+                    touristRouteDictionary.Add("links", links);
+                    return touristRouteDictionary;
+
+                });
+                var result = new
+                {
+                    Value = shapedDtoWithLinklist,
+                    links = linkDto
+                };
+
+                return Ok(result);
+            }
+
+            return Ok(shapedDtoList);
+           
+
+           
+        }
+        private IEnumerable<LinkDto> CreateLinksForTouristRouteList( 
+            TouristRouteResoureceParameters parameters
+            ,  PaginationResourceParamaters paginationResourceParamaters
+)
+        {
+            var links = new List<LinkDto>();
+            //添加self
+            links.Add(new LinkDto(
+                    GenerateTouristRouteResourceURL(parameters, paginationResourceParamaters, ResourceUrlType.CurrentPage),
+                    "self",
+                    "GET"
+                ));
+
+
+            //“api/touristRoutes”
+            links.Add(new LinkDto(
+                Url.Link("CreateTouristRoute", null),
+                "create_tourist_route",
+                "POST"
+                ));
+
+
+            return links;
+        
+        }
 
 
         [HttpGet("{touristRouteId}", Name = "GetTouristRouteById")]
 
-        public async Task<IActionResult> GetTouristRouteById(Guid touristRouteId)
+        public async Task<IActionResult> GetTouristRouteById(Guid touristRouteId,
+            string fields
+            )
         {
             var touristRouteFromRepo = await _touristRouteRepository.GetTouristRouteAsync(touristRouteId);
             if (touristRouteFromRepo == null) {
@@ -162,10 +272,62 @@ namespace Fakexiecheng.API.controllers
 
             };*/
             var touristRouteDto = _mapper.Map<TouristRouteDto>(touristRouteFromRepo);
-            return Ok(touristRouteDto);
+            // return Ok(touristRouteDto);
+            var linkDtos = CreateLinkForTouristRoute(touristRouteId, fields);
+
+            var result = touristRouteDto.ShapeData(fields)
+                as IDictionary<string,object>;
+
+            result.Add("links", linkDtos);
+            return Ok(result);
+            // return Ok(touristRouteDto.ShapeData(fields));
 
         }
-        [HttpPost]
+        private IEnumerable<LinkDto> CreateLinkForTouristRoute(Guid touristRouteId,
+            string fields)
+        {
+            var links = new List<LinkDto>();
+            links.Add(
+                new LinkDto(Url.Link("GetTouristRouteById", new { touristRouteId ,fields}),
+                "self",
+                "GET"
+                
+                
+                ));
+            //update
+            links.Add(
+                new LinkDto(Url.Link("UpdateTouristRoute", new { touristRouteId })
+                , "update", "PUT")
+                );
+            //partupdate
+            links.Add(
+                new LinkDto(Url.Link("PartiallyUpdateTouristRoute", new { touristRouteId })
+                , "partially_update", "PATCH")
+                );
+            //delete
+            links.Add(
+                new LinkDto(Url.Link("DeleteTouristRoute", new { touristRouteId })
+                , "delete", "DELETE")
+                );
+            //getpicture
+            links.Add(
+               new LinkDto(Url.Link("GetPictureListForTouristRoute", new { touristRouteId, fields }),
+               "get_pictures",
+               "GET"
+                ));
+            //postpicture
+            links.Add(
+               new LinkDto(Url.Link("CreateTouristRoutePicture", new { touristRouteId, fields }),
+               "creat_picture",
+               "POST"
+                ));
+
+            return links;
+        }
+
+
+
+        [HttpPost(Name = "CreateTouristRoute")]
         [Authorize(AuthenticationSchemes ="Bearer")]
         [Authorize]
         public async Task<IActionResult> CreateTouristRoute([FromBody] TouristRouteForCreationDto touristRouteForCreationDto)
@@ -173,19 +335,28 @@ namespace Fakexiecheng.API.controllers
             var touristRouteModel = _mapper.Map<TouristRoute>(touristRouteForCreationDto);
             _touristRouteRepository.AddTouristRoute(touristRouteModel);
             await _touristRouteRepository.SaveAsync();
-            var touristRouteToReture = _mapper.Map<TouristRouteDto>(touristRouteModel);
+            var touristRouteToReturn = _mapper.Map<TouristRouteDto>(touristRouteModel);
+
+            var links = CreateLinkForTouristRoute(touristRouteModel.Id ,null);
+
+            var result = touristRouteToReturn.ShapeData(null)
+                as IDictionary<string,object>;
+
+            result.Add("links", links);
+
+
             return CreatedAtRoute(
                 "GetTouristRouteById",
-                new { touristRouteId = touristRouteToReture.Id },
-                touristRouteToReture
+                new { touristRouteId = result["Id"] },
+                result
             );
         }
 
 
-        [HttpPut("{touristRouteId}")]
+        [HttpPut("{touristRouteId}",Name = "UpdateTouristRoute")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> UpdateTourisRoute(
+        public async Task<IActionResult> UpdateTouristRoute(
             [FromRoute] Guid touristRouteId,
             [FromBody] TouristRouteForUpdateDto touristRouteForUpdateDto)
 
@@ -205,7 +376,7 @@ namespace Fakexiecheng.API.controllers
 
             return NoContent();
         }
-        [HttpPatch("{touristRouteId}")]
+        [HttpPatch("{touristRouteId}",Name = "PartiallyUpdateTouristRoute")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> PartiallyUpdateTouristRoute([FromRoute] Guid touristRouteId,
@@ -235,10 +406,10 @@ namespace Fakexiecheng.API.controllers
 
         }
 
-        [HttpDelete("{touristRouteId}")]
+        [HttpDelete("{touristRouteId}", Name = "DeleteTouristRoute")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteTouristRouteAsync([FromRoute]Guid touristRouteId) 
+        public async Task<IActionResult> DeleteTouristRoute([FromRoute]Guid touristRouteId) 
         {
             if (! (await  _touristRouteRepository.TouristRouteExistsAsync(touristRouteId)))
             {

@@ -57,9 +57,29 @@ namespace Fakexiecheng.API.Moldes
 
         StateMachine<OrderStateEnum, OrderStateTriggerEnum> _machine;
 
+
+        public void PaymentProcessing()
+        {
+            _machine.Fire(OrderStateTriggerEnum.PlaceOrder);
+        
+        }
+
+        public void PaymentApprove()
+        {
+            _machine.Fire(OrderStateTriggerEnum.Approve);
+        
+        }
+
+        public void PaymentReject()
+        {
+            _machine.Fire(OrderStateTriggerEnum.Reject);
+        }
+
+
+
         private void StateMachineInit() {
             _machine = new StateMachine<OrderStateEnum, OrderStateTriggerEnum>
-                (OrderStateEnum.Pending);
+                (()=>State,s=>State=s);
             _machine.Configure(OrderStateEnum.Pending)
                 .Permit(OrderStateTriggerEnum.PlaceOrder, OrderStateEnum.Processing)
                 .Permit(OrderStateTriggerEnum.Cancel, OrderStateEnum.Cancelled);

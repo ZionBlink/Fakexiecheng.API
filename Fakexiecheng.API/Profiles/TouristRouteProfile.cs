@@ -10,7 +10,7 @@ namespace Fakexiecheng.API.Profiles
 {
     public class TouristRouteProfile : Profile
     {
-        public TouristRouteProfile() 
+        public TouristRouteProfile()
         {
             CreateMap<TouristRoute, TouristRouteDto>()
                 .ForMember(
@@ -35,9 +35,14 @@ namespace Fakexiecheng.API.Profiles
                 dest => dest.Id,
                 opt => opt.MapFrom(src => Guid.NewGuid())
 
-                ) ;
+                );
             CreateMap<TouristRouteForUpdateDto, TouristRoute>();
             CreateMap<TouristRoute, TouristRouteForUpdateDto>();
+            CreateMap<TouristRoute, TouristRouteSimplifyDto>()
+                .ForMember(
+                dest => dest.Price,
+                opt => opt.MapFrom(src => src.OriginalPrice * (decimal)(src.DiscountPresent ?? 1))
+                );
         }
     }
 }

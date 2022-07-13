@@ -36,7 +36,7 @@ namespace Fakexiecheng.API.controllers
         }
 
 
-        [HttpGet]
+        [HttpGet(Name = "GetShoppingCart")]
         [Authorize]
         public async Task<IActionResult> GetShoppingCart() 
         

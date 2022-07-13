@@ -3,6 +3,7 @@ using Fakexiecheng.API.Moldes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 
 namespace Fakexiecheng.API.Services
 {
@@ -48,5 +49,60 @@ namespace Fakexiecheng.API.Services
 
         }
 
+
+        public bool IsMappingExists<TSource, TDestination>(string fields)
+        {
+            var propertyMapping = GetPropertyMapping<TSource,TDestination>();
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                return true;
+            }
+            var fieldsAfterSplit = fields.Split(',');
+            foreach (var field in fieldsAfterSplit)
+            {   //去空格
+                
+                var trimmedField = field.Trim();
+                //获得属性名称字符串
+                var indexOfFirstSpace = trimmedField.IndexOf(" ");
+                var propertyName = indexOfFirstSpace == -1 ?
+                        trimmedField : trimmedField.Remove(indexOfFirstSpace);
+
+                if (!propertyMapping.ContainsKey(propertyName))
+                {
+                    return false;
+                
+                
+                }
+
+            }
+            return true;
+        }
+
+        public bool IsPropertiesExists<T>(string fields)
+        {
+            if (string.IsNullOrWhiteSpace(fields))
+            {
+                return true;
+            }
+
+            var fieldsAfterSplit = fields.Split(',');
+
+            foreach (var field in fieldsAfterSplit)
+            {
+                var propertyName = field.Trim();
+
+                var propertyInfo = typeof(T)
+                    .GetProperty(propertyName,
+                    BindingFlags.IgnoreCase | BindingFlags.Public |  BindingFlags .Instance);
+
+                if (propertyInfo ==null) {
+
+                    return false;
+                }
+
+            }
+            return true;
+        
+        }
     }
 }
