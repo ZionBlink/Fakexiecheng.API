@@ -370,8 +370,6 @@ namespace Fakexiecheng.API.controllers
 
             var touristRouteFromRepo = await _touristRouteRepository.GetTouristRouteAsync(touristRouteId);
             _mapper.Map(touristRouteForUpdateDto, touristRouteFromRepo);
-
-
             await _touristRouteRepository.SaveAsync();
 
             return NoContent();
@@ -382,7 +380,7 @@ namespace Fakexiecheng.API.controllers
         public async Task<IActionResult> PartiallyUpdateTouristRoute([FromRoute] Guid touristRouteId,
             [FromBody] JsonPatchDocument<TouristRouteForUpdateDto> patchDocument) {
 
-            if (!(await _touristRouteRepository.TouristRouteExistsAsync(touristRouteId)))
+            if (!await _touristRouteRepository.TouristRouteExistsAsync(touristRouteId))
             {
                 return NotFound("旅游路线找不到");
 

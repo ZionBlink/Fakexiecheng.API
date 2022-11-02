@@ -2,24 +2,33 @@
 using Fakexiecheng.API.Moldes;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Fakexiecheng.API.Services
 {
-   public interface ITouristRouteRepository
+    public interface ITouristRouteRepository
     {
-       Task<PaginationList<TouristRoute>> GetTouristRoutesAsync(
-           string keyword, 
-           string ratingOperator ,
-           int? ratingValue,
-           int pageSize,
-           int pageNumber,
-           string orderBy
+        /// <summary>
+        /// 数据塑型
+        /// </summary>
+        /// <param name="keyword"></param>
+        /// <param name="ratingOperator"></param>
+        /// <param name="ratingValue"></param>
+        /// <param name="pageSize"></param>
+        /// <param name="pageNumber"></param>
+        /// <param name="orderBy"></param>
+        /// <returns></returns>
+        Task<PaginationList<TouristRoute>> GetTouristRoutesAsync(
+            string keyword,
+            string ratingOperator,
+            int? ratingValue,
+            int pageSize,
+            int pageNumber,
+            string orderBy
 
-           
-           
-           );
+
+
+            );
 
         Task<TouristRoute> GetTouristRouteAsync(Guid touristRouteId);
 
@@ -31,7 +40,7 @@ namespace Fakexiecheng.API.Services
         Task<TouristRoutePicture> GetPictureAsync(int pictureId);
 
         void AddTouristRoute(TouristRoute touristRoute);
-        void AddTouristRoutePicture(Guid touristRoute,  TouristRoutePicture touristRoutePicture);
+        void AddTouristRoutePicture(Guid touristRoute, TouristRoutePicture touristRoutePicture);
 
         void DeleteTouristRoute(TouristRoute touristRoute);
 
@@ -55,9 +64,9 @@ namespace Fakexiecheng.API.Services
         Task<PaginationList<Order>> GetOrdersByUserId(string userId, int pageSize, int pageNumber);
 
 
-       Task<Order> GetOrderById(Guid orderID);
+        Task<Order> GetOrderById(Guid orderID);
 
         Task<bool> SaveAsync();
-        
+
     }
 }
