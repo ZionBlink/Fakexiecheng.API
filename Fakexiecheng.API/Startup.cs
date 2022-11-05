@@ -93,10 +93,13 @@ namespace Fakexiecheng.API
             services.AddDbContext<AppDbContext>(option =>
             {
                 /*  option.UseSqlServer("server=localhost; Database=FakeXiechengDb; User Id=sa;Password=Pass@w0rd;") ;*/
+                //本地自带数据库
                 option.UseSqlServer(Configuration["DbContext:ConnectionString"]);
+                //docker数据库
+                // option.UseSqlServer(Configuration["AppContext:ConnectionString"]);
             });
 
-            //
+            //扫描profile文件，添加dto的映射，对将要传输至前端的数据塑形
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
             services.AddHttpClient();
             services.AddSingleton<IActionContextAccessor, ActionContextAccessor>();

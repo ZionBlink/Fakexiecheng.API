@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Fakexiecheng.API.Migrations
 {
-    public partial class ShoppingCarMigration : Migration
+    public partial class initialMigration : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -207,6 +207,27 @@ namespace Fakexiecheng.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Orders",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(nullable: false),
+                    UserId = table.Column<string>(nullable: true),
+                    State = table.Column<int>(nullable: false),
+                    CreateDateUTC = table.Column<DateTime>(nullable: false),
+                    TransactionMetadata = table.Column<string>(nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Orders_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ShoppingCarts",
                 columns: table => new
                 {
@@ -253,11 +274,18 @@ namespace Fakexiecheng.API.Migrations
                     TouristRouteId = table.Column<Guid>(nullable: false),
                     ShoppingCartId = table.Column<Guid>(nullable: true),
                     OriginalPrice = table.Column<decimal>(type: "decimal(18,2)", nullable: false),
-                    DiscountPresent = table.Column<double>(nullable: true)
+                    DiscountPresent = table.Column<double>(nullable: true),
+                    OrderId = table.Column<Guid>(nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_LineItems", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_LineItems_Orders_OrderId",
+                        column: x => x.OrderId,
+                        principalTable: "Orders",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_LineItems_ShoppingCarts_ShoppingCartId",
                         column: x => x.ShoppingCartId,
@@ -275,12 +303,12 @@ namespace Fakexiecheng.API.Migrations
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "308660dc-ae51-480f-824d-7dca6714c3e2", "4608c22e-3031-49aa-9cec-d913eceb580e", "Admin", "ADMIN" });
+                values: new object[] { "308660dc-ae51-480f-824d-7dca6714c3e2", "d077361e-dd38-47d5-b247-436d8450f96c", "Admin", "ADMIN" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "Address", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "90184155-dee0-40c9-bb1e-b5ed07afc04e", 0, null, "f044a3a9-09cb-4fa8-a1fd-7ab235896c38", "admin@fakexiecheng.com", true, false, null, "ADMIN@FAKEXIECHENG.COM", "ADMIN@FAKEXIECHENG.COM", "AQAAAAEAACcQAAAAEJKdz4wAEqG/gNfh/wcIxdnpnWne3YTIhuhpjB2B3RWj07Q5gToSqW1/2K9dcAGhWQ==", "123456789", false, "a6e96f2d-654e-4220-b82c-c293bc09411c", false, "admin@fakexiecheng.com" });
+                values: new object[] { "90184155-dee0-40c9-bb1e-b5ed07afc04e", 0, null, "04d384d2-4312-4d0e-9eaa-5b1ac0067bab", "admin@fakexiecheng.com", true, false, null, "ADMIN@FAKEXIECHENG.COM", "ADMIN@FAKEXIECHENG.COM", "AQAAAAEAACcQAAAAEO5laNO+u+osxjrbEYDunjJGHi98GwPUhlMlgkUY9hYrlYj9cA5M2/elut9W0QisKg==", "123456789", false, "13b833a7-3c1c-4fff-8909-17e27a7573fa", false, "admin@fakexiecheng.com" });
 
             migrationBuilder.InsertData(
                 table: "TouristRoutes",
@@ -445,6 +473,11 @@ namespace Fakexiecheng.API.Migrations
                 column: "ApplicationUserId");
 
             migrationBuilder.CreateIndex(
+                name: "IX_LineItems_OrderId",
+                table: "LineItems",
+                column: "OrderId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_LineItems_ShoppingCartId",
                 table: "LineItems",
                 column: "ShoppingCartId");
@@ -453,6 +486,11 @@ namespace Fakexiecheng.API.Migrations
                 name: "IX_LineItems_TouristRouteId",
                 table: "LineItems",
                 column: "TouristRouteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Orders_UserId",
+                table: "Orders",
+                column: "UserId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_ShoppingCarts_UserId",
@@ -492,6 +530,9 @@ namespace Fakexiecheng.API.Migrations
 
             migrationBuilder.DropTable(
                 name: "AspNetRoles");
+
+            migrationBuilder.DropTable(
+                name: "Orders");
 
             migrationBuilder.DropTable(
                 name: "ShoppingCarts");

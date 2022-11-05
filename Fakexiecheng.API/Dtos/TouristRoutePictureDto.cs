@@ -13,6 +13,6 @@ namespace Fakexiecheng.API.Dtos
 
         public string Url { get; set; }
 
-        public Guid TourisRouteId { get; set; }
+        public Guid TouristRouteId { get; set; }
     }
 }

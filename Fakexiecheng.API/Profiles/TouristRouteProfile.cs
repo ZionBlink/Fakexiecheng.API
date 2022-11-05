@@ -1,10 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using AutoMapper;
+﻿using AutoMapper;
 using Fakexiecheng.API.Dtos;
 using Fakexiecheng.API.Moldes;
+using System;
 
 namespace Fakexiecheng.API.Profiles
 {
@@ -28,7 +25,16 @@ namespace Fakexiecheng.API.Profiles
                 .ForMember(
                 dest => dest.DepartureCity,
                 opt => opt.MapFrom(src => src.DepartureCity.ToString())
-                );
+                )
+                /*.ForMember(
+                dest => dest.Test,
+                opt => opt.MapFrom(src => src.Equals(new
+                {
+                    src.DepartureTime,
+                    src.Description
+                }))
+                )*/
+                ;
 
             CreateMap<TouristRouteForCreationDto, TouristRoute>()
                 .ForMember(

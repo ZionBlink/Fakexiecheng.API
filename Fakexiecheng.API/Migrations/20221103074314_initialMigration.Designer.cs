@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Fakexiecheng.API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20220615030313_OrderMigration")]
-    partial class OrderMigration
+    [Migration("20221103074314_initialMigration")]
+    partial class initialMigration
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -93,16 +93,16 @@ namespace Fakexiecheng.API.Migrations
                         {
                             Id = "90184155-dee0-40c9-bb1e-b5ed07afc04e",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "b12210c0-2b87-43ca-aece-1bffdfcdb46c",
+                            ConcurrencyStamp = "04d384d2-4312-4d0e-9eaa-5b1ac0067bab",
                             Email = "admin@fakexiecheng.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@FAKEXIECHENG.COM",
                             NormalizedUserName = "ADMIN@FAKEXIECHENG.COM",
-                            PasswordHash = "AQAAAAEAACcQAAAAEBxIInoucDWxDgzqjCpxMF2gxvVgqULOu4amCLMvM4fcWb5q0BbFKDyV/Hk11TEIRw==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEO5laNO+u+osxjrbEYDunjJGHi98GwPUhlMlgkUY9hYrlYj9cA5M2/elut9W0QisKg==",
                             PhoneNumber = "123456789",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "8da9d435-b7c8-4529-912f-da4ca0612634",
+                            SecurityStamp = "13b833a7-3c1c-4fff-8909-17e27a7573fa",
                             TwoFactorEnabled = false,
                             UserName = "admin@fakexiecheng.com"
                         });
@@ -945,7 +945,7 @@ namespace Fakexiecheng.API.Migrations
                         new
                         {
                             Id = "308660dc-ae51-480f-824d-7dca6714c3e2",
-                            ConcurrencyStamp = "fc4f3705-4062-4dcc-b910-586d7e18b210",
+                            ConcurrencyStamp = "d077361e-dd38-47d5-b247-436d8450f96c",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
