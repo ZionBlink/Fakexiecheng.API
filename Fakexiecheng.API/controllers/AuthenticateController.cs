@@ -66,7 +66,7 @@ namespace Fakexiecheng.API.controllers
             }
             // signiture
             var secretByte = Encoding.UTF8.GetBytes(_configuration["Authentication:SecretKey"]);
-            var signingKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_configuration["Authentication:SecretKey"]));
+            var signingKey = new SymmetricSecurityKey(secretByte);
             var signingCredentials = new SigningCredentials(signingKey, signingAlgorithm);
 
             var token = new JwtSecurityToken(
@@ -90,7 +90,7 @@ namespace Fakexiecheng.API.controllers
         public async Task<IActionResult> Register([FromBody]  RegisterDto registerDto)
 
         {
-            // 
+            // 使用用户名创建用户对象
             var user = new ApplicationUser()
             {
             UserName =registerDto.Email,
@@ -98,7 +98,7 @@ namespace Fakexiecheng.API.controllers
             
             
             };
-            //2
+            //2 hash密码，保存用户
             var result = await _userManager.CreateAsync(user, registerDto.Password);
             if (!result.Succeeded) {
 
@@ -114,7 +114,7 @@ namespace Fakexiecheng.API.controllers
             await _touristRouteRepository.CreateShoppingCart(shoppingCart);
             await _touristRouteRepository.SaveAsync();
 
-            //4
+            //4返回 
             return Ok();
         }
 

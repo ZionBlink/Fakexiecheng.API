@@ -1,12 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Fakexiecheng.API.Database;
+﻿using Fakexiecheng.API.Database;
 using Fakexiecheng.API.Dtos;
 using Fakexiecheng.API.helper;
 using Fakexiecheng.API.Moldes;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Dynamic.Core;
+using System.Threading.Tasks;
 
 namespace Fakexiecheng.API.Services
 {
@@ -27,9 +28,10 @@ namespace Fakexiecheng.API.Services
             return await _context.TouristRoutes.Include(t => t.TouristRoutePictures).FirstOrDefaultAsync(n => n.Id == touristRouteId);
         }
 
-        public  async Task<PaginationList<TouristRoute>> GetTouristRoutesAsync(
+
+        public async Task<PaginationList<TouristRoute>> GetTouristRoutesAsync(
             string keyword,
-             string ratingOperator,
+            string ratingOperator,
             int? ratingValue,
             int pageSize,
             int pageNumber,
@@ -38,12 +40,14 @@ namespace Fakexiecheng.API.Services
         {
             IQueryable<TouristRoute> result = _context
                 .TouristRoutes
-                .Include(t=>t.TouristRoutePictures);
-            if (!string.IsNullOrWhiteSpace(keyword)) {
+                .Include(t => t.TouristRoutePictures);
+            if (!string.IsNullOrWhiteSpace(keyword))
+            {
                 keyword = keyword.Trim();
-                result = result.Where(t=> t.Title.Contains(keyword));
+                result = result.Where(t => t.Title.Contains(keyword));
             }
-            if (ratingValue >= 0) {
+            if (ratingValue >= 0)
+            {
                 result = ratingOperator switch
                 {
                     "largerThan" => result.Where(t => t.Rating >= ratingValue),
@@ -53,13 +57,13 @@ namespace Fakexiecheng.API.Services
             }
             if (!string.IsNullOrWhiteSpace(orderBy))
             {
-               /* if (orderBy.ToLowerInvariant()=="originalprice")//ToLowerInvariant仅限英语效率高
-                {
-                    result = result.OrderBy(t => t.OriginalPrice);
-                }*/
+                /* if (orderBy.ToLowerInvariant()=="originalprice")//ToLowerInvariant仅限英语效率高
+                 {
+                     result = result.OrderBy(t => t.OriginalPrice);
+                 }*/
                 var touristRouteMappingDictionary = _propertyMappingService
-                    .GetPropertyMapping<TouristRouteDto,TouristRoute>();
-               result= result.ApplySort(orderBy, touristRouteMappingDictionary);
+                    .GetPropertyMapping<TouristRouteDto, TouristRoute>();
+                result = result.ApplySort(orderBy, touristRouteMappingDictionary);
 
             }
 
@@ -68,15 +72,15 @@ namespace Fakexiecheng.API.Services
         }
         public async Task<bool> TouristRouteExistsAsync(Guid touristRouteId)
         {
-            return  await  _context.TouristRoutes.AnyAsync(n => n.Id == touristRouteId);
+            return await _context.TouristRoutes.AnyAsync(n => n.Id == touristRouteId);
         }
 
         public async Task<IEnumerable<TouristRoutePicture>> GetPicturesByTouristRouteIdAsync(Guid touristRouteId)
         {
-            return await _context.TouristRoutePictures.Where(P => P.TouristRouteId ==touristRouteId).ToListAsync();
+            return await _context.TouristRoutePictures.Where(P => P.TouristRouteId == touristRouteId).ToListAsync();
         }
 
-        public async Task<TouristRoutePicture> GetPictureAsync(int pictureId) 
+        public async Task<TouristRoutePicture> GetPictureAsync(int pictureId)
         {
             return await _context.TouristRoutePictures.Where(p => p.Id == pictureId).FirstOrDefaultAsync();
         }
@@ -85,23 +89,26 @@ namespace Fakexiecheng.API.Services
 
         public void AddTouristRoute(TouristRoute touristRoute)
         {
-            if (touristRoute == null) {
+            if (touristRoute == null)
+            {
 
                 throw new ArgumentNullException(nameof(touristRoute));
             }
 
             _context.TouristRoutes.Add(touristRoute);
-            _context.SaveChanges();
+          //  _context.SaveChanges();
 
         }
-        public void AddTouristRoutePicture(Guid touristRouteId, TouristRoutePicture touristRoutePicture) 
-        
-        
+        public void AddTouristRoutePicture(Guid touristRouteId, TouristRoutePicture touristRoutePicture)
+
+
         {
-            if (touristRouteId == Guid.Empty) {
+            if (touristRouteId == Guid.Empty)
+            {
                 throw new ArgumentNullException(nameof(touristRouteId));
             }
-            if (touristRoutePicture == null) {
+            if (touristRoutePicture == null)
+            {
 
                 throw new ArgumentNullException(nameof(touristRoutePicture));
             }
@@ -109,7 +116,8 @@ namespace Fakexiecheng.API.Services
             _context.TouristRoutePictures.Add(touristRoutePicture);
 
         }
-        public void DeleteTouristRoute(TouristRoute touristRoute) {
+        public void DeleteTouristRoute(TouristRoute touristRoute)
+        {
 
             _context.TouristRoutes.Remove(touristRoute);
         }
@@ -119,17 +127,18 @@ namespace Fakexiecheng.API.Services
             _context.TouristRoutePictures.Remove(picture);
         }
 
-        public  async Task<bool> SaveAsync() {
+        public async Task<bool> SaveAsync()
+        {
 
-            return  (await _context.SaveChangesAsync()>=0);
+            return (await _context.SaveChangesAsync() >= 0);
         }
 
-       
 
-       
-       
 
-       public async Task<IEnumerable<TouristRoute>> GetTouristRoutesByIDListAsync(IEnumerable<Guid> ids)
+
+
+
+        public async Task<IEnumerable<TouristRoute>> GetTouristRoutesByIDListAsync(IEnumerable<Guid> ids)
         {
             return await _context.TouristRoutes.Where(t => ids.Contains(t.Id)).ToListAsync();
         }
@@ -149,7 +158,7 @@ namespace Fakexiecheng.API.Services
 
         public async Task CreateShoppingCart(ShoppingCart shoppingCart)
         {
-              await _context.ShoppingCarts.AddAsync(shoppingCart);
+            await _context.ShoppingCarts.AddAsync(shoppingCart);
         }
 
         public async Task AddShoppingCartItem(LineItem lineItem)
@@ -182,12 +191,12 @@ namespace Fakexiecheng.API.Services
             await _context.Orders.AddAsync(order);
         }
 
-        public async Task<PaginationList<Order>> GetOrdersByUserId(string userId ,int pageSize ,int pageNumber)
+        public async Task<PaginationList<Order>> GetOrdersByUserId(string userId, int pageSize, int pageNumber)
         {
             // return  await _context.Orders.Where(o => o.UserId == userId).ToListAsync();
             IQueryable<Order> result = _context.Orders.Where(o => o.UserId == userId);
             return await PaginationList<Order>.CreateAsync(pageNumber, pageSize, result);
-             
+
         }
 
         public async Task<Order> GetOrderById(Guid orderID)

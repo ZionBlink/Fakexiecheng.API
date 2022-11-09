@@ -69,6 +69,7 @@ namespace Fakexiecheng.API
                     new CamelCasePropertyNamesContractResolver();
             })
             .AddXmlDataContractSerializerFormatters()
+            //数据验证（没理解仔细看代码）
             .ConfigureApiBehaviorOptions(setupAction =>
             {
                 setupAction.InvalidModelStateResponseFactory = context =>
@@ -126,12 +127,12 @@ namespace Fakexiecheng.API
             {
                 app.UseDeveloperExceptionPage();
             }
-
+            //你在哪里？
             app.UseRouting();
 
-
+            //你是谁
             app.UseAuthentication();
-
+            //你的权限是
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>

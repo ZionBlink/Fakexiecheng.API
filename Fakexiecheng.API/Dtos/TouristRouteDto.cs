@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Fakexiecheng.API.Models;
+using Microsoft.AspNetCore.SignalR;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -30,8 +32,10 @@ namespace Fakexiecheng.API.Dtos
 
         public string DepartureCity { get; set; }
 
-
         public ICollection<TouristRoutePictureDto> TouristRoutePictures { get; set; }
-      //  public IEnumerable Test { get; set; }
+
+
+        public ICollection<Test> Test { get; set; } = new List<Test>{ };
+        
     }
 }

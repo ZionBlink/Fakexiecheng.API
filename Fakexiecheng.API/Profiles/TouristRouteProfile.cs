@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Fakexiecheng.API.Dtos;
+using Fakexiecheng.API.Models;
 using Fakexiecheng.API.Moldes;
 using System;
 
@@ -9,6 +10,7 @@ namespace Fakexiecheng.API.Profiles
     {
         public TouristRouteProfile()
         {
+            //把前面的数据，塑形成后面的模型进行输出
             CreateMap<TouristRoute, TouristRouteDto>()
                 .ForMember(
                 dest => dest.Price,
@@ -25,18 +27,11 @@ namespace Fakexiecheng.API.Profiles
                 .ForMember(
                 dest => dest.DepartureCity,
                 opt => opt.MapFrom(src => src.DepartureCity.ToString())
-                )
-                /*.ForMember(
-                dest => dest.Test,
-                opt => opt.MapFrom(src => src.Equals(new
-                {
-                    src.DepartureTime,
-                    src.Description
-                }))
-                )*/
+                )                             
                 ;
+            
 
-            CreateMap<TouristRouteForCreationDto, TouristRoute>()
+           CreateMap<TouristRouteForCreationDto, TouristRoute>()
                 .ForMember(
                 dest => dest.Id,
                 opt => opt.MapFrom(src => Guid.NewGuid())

@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Fakexiecheng.API.Dtos;
 using Fakexiecheng.API.helper;
+using Fakexiecheng.API.Models;
 using Fakexiecheng.API.Moldes;
 using Fakexiecheng.API.ResoureceParameters;
 using Fakexiecheng.API.Services;
@@ -272,13 +273,19 @@ namespace Fakexiecheng.API.controllers
 
             };*/
             var touristRouteDto = _mapper.Map<TouristRouteDto>(touristRouteFromRepo);
+
             // return Ok(touristRouteDto);
+            touristRouteDto.Test = new List<Test>{ new Test {
+                Description=touristRouteDto.Description,
+                Title= touristRouteDto.Title
+            } };
             var linkDtos = CreateLinkForTouristRoute(touristRouteId, fields);
 
             var result = touristRouteDto.ShapeData(fields)
                 as IDictionary<string, object>;
 
             result.Add("links", linkDtos);
+
             return Ok(result);
             // return Ok(touristRouteDto.ShapeData(fields));
 
@@ -367,11 +374,9 @@ namespace Fakexiecheng.API.controllers
                 return NotFound("旅游路线找不到");
 
             }
-
             var touristRouteFromRepo = await _touristRouteRepository.GetTouristRouteAsync(touristRouteId);
             _mapper.Map(touristRouteForUpdateDto, touristRouteFromRepo);
             await _touristRouteRepository.SaveAsync();
-
             return NoContent();
         }
         [HttpPatch("{touristRouteId}", Name = "PartiallyUpdateTouristRoute")]
@@ -424,7 +429,7 @@ namespace Fakexiecheng.API.controllers
         }
 
 
-        [HttpDelete]
+        [HttpDelete("({touristIDs})")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteByIDs([ModelBinder(typeof(ArrayModelBinder))][FromRoute] IEnumerable<Guid> touristIDs)

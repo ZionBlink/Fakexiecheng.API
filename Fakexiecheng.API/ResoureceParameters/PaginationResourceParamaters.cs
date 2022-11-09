@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Fakexiecheng.API.ResoureceParameters
+﻿namespace Fakexiecheng.API.ResoureceParameters
 {
     public class PaginationResourceParamaters
     {
