@@ -1,16 +1,15 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Fakexiecheng.API.Dtos;
+using Fakexiecheng.API.Moldes;
+using Fakexiecheng.API.Services;
+using FakeXiecheng.API.Helper;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using System.Security.Claims;
-using Fakexiecheng.API.Services;
-using AutoMapper;
-using Fakexiecheng.API.Dtos;
-using Fakexiecheng.API.Moldes;
-using FakeXiecheng.API.Helper;
+using System.Threading.Tasks;
 
 namespace Fakexiecheng.API.controllers
 {
@@ -18,16 +17,14 @@ namespace Fakexiecheng.API.controllers
     [ApiController]
     [Route("api/[controller]")]
     public class ShoppingCartController : ControllerBase
-
-
-
     {
 
         private readonly IHttpContextAccessor _httpContextAccessor;
         private readonly ITouristRouteRepository _touristRouteRepository;
         private readonly IMapper _mapper;
 
-        public ShoppingCartController(IHttpContextAccessor httpContextAccessor, ITouristRouteRepository touristRouteRepository, IMapper mapper) {
+        public ShoppingCartController(IHttpContextAccessor httpContextAccessor, ITouristRouteRepository touristRouteRepository, IMapper mapper)
+        {
 
             _httpContextAccessor = httpContextAccessor;
             _touristRouteRepository = touristRouteRepository;
@@ -38,14 +35,14 @@ namespace Fakexiecheng.API.controllers
 
         [HttpGet(Name = "GetShoppingCart")]
         [Authorize]
-        public async Task<IActionResult> GetShoppingCart() 
-        
+        public async Task<IActionResult> GetShoppingCart()
+
         {
-            //1
+            //1 获得当前用户
             var userId = _httpContextAccessor.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
-            //
+            //2使用用户id获得购物车
             var shoppingCart = await _touristRouteRepository.GetShoppingCartByUserId(userId);
-            
+
 
 
             //
@@ -89,23 +86,25 @@ namespace Fakexiecheng.API.controllers
         }
         [HttpDelete("items/{itemId}")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> DeleteShoppingCarItem([FromRoute] int itemId) {
+        public async Task<IActionResult> DeleteShoppingCarItem([FromRoute] int itemId)
+        {
 
             //1
             var lineItem = await _touristRouteRepository.GetShoppingCartItemByItemId(itemId);
-            if (lineItem == null) {
+            if (lineItem == null)
+            {
                 return NotFound("购物车商品找不到");
-            
+
             }
             _touristRouteRepository.DeleteShoppingCartItem(lineItem);
             await _touristRouteRepository.SaveAsync();
             return NoContent();
-        
+
         }
         [HttpDelete("items/({itemIDs})")]
         [Authorize(AuthenticationSchemes = "Bearer")]
-        public async Task<IActionResult> RemoveShoppingCartItems( [ModelBinder(BinderType = typeof(ArrayModelBinder))][FromRoute] IEnumerable<int> itemIDs) 
-        
+        public async Task<IActionResult> RemoveShoppingCartItems([ModelBinder(BinderType = typeof(ArrayModelBinder))][FromRoute] IEnumerable<int> itemIDs)
+
         {
             var lineItems = await _touristRouteRepository.GetShoppingCartsByIdListAsync(itemIDs);
 
@@ -118,8 +117,8 @@ namespace Fakexiecheng.API.controllers
         [HttpPost("checkout")]
         [Authorize(AuthenticationSchemes = "Bearer")]
 
-        public async Task<IActionResult> Checkout() 
-        
+        public async Task<IActionResult> Checkout()
+
         {
             // 1 获得当前用户
             var userId = _httpContextAccessor
@@ -144,7 +143,7 @@ namespace Fakexiecheng.API.controllers
             await _touristRouteRepository.AddOrderAsync(order);
             await _touristRouteRepository.SaveAsync();
             //
-            return Ok(_mapper.Map<OrderDto>(order)); 
+            return Ok(_mapper.Map<OrderDto>(order));
 
         }
 

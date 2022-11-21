@@ -1,4 +1,5 @@
 using Fakexiecheng.API.Database;
+using Fakexiecheng.API.Models;
 using Fakexiecheng.API.Moldes;
 using Fakexiecheng.API.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -15,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
+using SimplePatch;
 using System;
 using System.Linq;
 using System.Text;
@@ -24,9 +26,19 @@ namespace Fakexiecheng.API
     public class Startup
     {
 
-        public IConfiguration Configuration { get; }
+        public IConfiguration Configuration { get; set; }
         public Startup(IConfiguration configuration)
         {
+
+            DeltaConfig.Init(options =>
+            {
+                options.AddEntity<Form_TD>();
+
+
+
+            });
+
+
             Configuration = configuration;
         }
         // This method gets called by the runtime. Use this method to add services to the container.

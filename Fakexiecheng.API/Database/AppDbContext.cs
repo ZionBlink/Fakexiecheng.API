@@ -1,22 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using Fakexiecheng.API.Models;
 using Fakexiecheng.API.Moldes;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
-using Microsoft.AspNetCore.Identity;
 
 namespace Fakexiecheng.API.Database
 {
-    public class AppDbContext: IdentityDbContext<ApplicationUser>
+    public class AppDbContext : IdentityDbContext<ApplicationUser>
     {
-        public AppDbContext(DbContextOptions<AppDbContext> options):base (options) { 
-        
-        
+        public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
+        {
+
+
         }
 
         public DbSet<TouristRoute> TouristRoutes { get; set; }
@@ -27,9 +26,11 @@ namespace Fakexiecheng.API.Database
         public DbSet<LineItem> LineItems { get; set; }
 
         public DbSet<Order> Orders { get; set; }
+        public DbSet<Form_TD> Form_TD { get; set; }
 
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder) {
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
             /*
                         modelBuilder.Entity<TouristRoute>().HasData(new TouristRoute()
                         {
@@ -43,7 +44,7 @@ namespace Fakexiecheng.API.Database
 
                         }) ;*/
 
-          var touristRouteJsonData =File.ReadAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)+@"/Database/touristRoutesMockData.json");
+            var touristRouteJsonData = File.ReadAllText(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) + @"/Database/touristRoutesMockData.json");
             IList<TouristRoute> touristRoutes = JsonConvert.DeserializeObject<IList<TouristRoute>>(touristRouteJsonData);
             modelBuilder.Entity<TouristRoute>().HasData(touristRoutes);
 
@@ -95,6 +96,6 @@ namespace Fakexiecheng.API.Database
             base.OnModelCreating(modelBuilder);
         }
 
-      
+
     }
 }

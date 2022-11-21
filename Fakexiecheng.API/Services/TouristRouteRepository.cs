@@ -61,6 +61,8 @@ namespace Fakexiecheng.API.Services
                  {
                      result = result.OrderBy(t => t.OriginalPrice);
                  }*/
+
+                //回顾这里的意义
                 var touristRouteMappingDictionary = _propertyMappingService
                     .GetPropertyMapping<TouristRouteDto, TouristRoute>();
                 result = result.ApplySort(orderBy, touristRouteMappingDictionary);
@@ -96,7 +98,7 @@ namespace Fakexiecheng.API.Services
             }
 
             _context.TouristRoutes.Add(touristRoute);
-          //  _context.SaveChanges();
+            //  _context.SaveChanges();
 
         }
         public void AddTouristRoutePicture(Guid touristRouteId, TouristRoutePicture touristRoutePicture)
@@ -132,11 +134,6 @@ namespace Fakexiecheng.API.Services
 
             return (await _context.SaveChangesAsync() >= 0);
         }
-
-
-
-
-
 
         public async Task<IEnumerable<TouristRoute>> GetTouristRoutesByIDListAsync(IEnumerable<Guid> ids)
         {

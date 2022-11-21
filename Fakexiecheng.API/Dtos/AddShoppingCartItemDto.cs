@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Fakexiecheng.API.Dtos
 {
@@ -12,10 +9,6 @@ namespace Fakexiecheng.API.Dtos
     {
 
         public Guid TouristRouteId { get; set; }
-
-
-
-
 
 
     }

@@ -73,7 +73,7 @@ namespace Fakexiecheng.API.controllers
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> PlaceOrder([FromRoute]Guid orderId)
         {
-            //1.
+            //1.获得当前用户
             var userId = _httpContextAccessor
                  .HttpContext.User.FindFirst(ClaimTypes.NameIdentifier).Value;
 

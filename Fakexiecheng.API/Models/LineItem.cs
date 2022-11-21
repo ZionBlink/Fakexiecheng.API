@@ -1,9 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Fakexiecheng.API.Moldes
 {
@@ -24,12 +21,14 @@ namespace Fakexiecheng.API.Moldes
 
         [Column(TypeName = "decimal(18,2)")]
         public decimal OriginalPrice { get; set; }
+
+
         [Range(0.0, 1.0)]
-        public double? DiscountPresent
-        {
-            get;
-            set;
-        }
+        public double? DiscountPresent { get; set; }
+
+
+
+
 
     }
 }
