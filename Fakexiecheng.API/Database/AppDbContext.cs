@@ -54,7 +54,9 @@ namespace Fakexiecheng.API.Database
 
             //初始化用户与角色的种子数据
             //1.更新用户与角色的外键
-            modelBuilder.Entity<ApplicationUser>(u => u.HasMany(x => x.UserRoles).WithOne().HasForeignKey(ur => ur.UserId).IsRequired());
+            modelBuilder.Entity<ApplicationUser>(u =>
+            u.HasMany(x => x.UserRoles)
+            .WithOne().HasForeignKey(ur => ur.UserId).IsRequired());
             //2.添加管理员角色
             var adminRoleId = "308660dc-ae51-480f-824d-7dca6714c3e2"; // guid 
             modelBuilder.Entity<IdentityRole>().HasData(
@@ -80,6 +82,7 @@ namespace Fakexiecheng.API.Database
                 PhoneNumber = "123456789",
                 PhoneNumberConfirmed = false
             };
+            //密码不用明文存
             var ph = new PasswordHasher<ApplicationUser>();
             adminUser.PasswordHash = ph.HashPassword(adminUser, "Fake123$");
             modelBuilder.Entity<ApplicationUser>().HasData(adminUser);

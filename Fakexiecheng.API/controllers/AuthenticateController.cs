@@ -20,13 +20,14 @@ namespace Fakexiecheng.API.controllers
     public class AuthenticateController : ControllerBase
     {
 
-
+        //根据配置文件（appsetting）获取数据
         private readonly IConfiguration _configuration;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly ITouristRouteRepository _touristRouteRepository;
 
-        public AuthenticateController(IConfiguration configuration, UserManager<ApplicationUser> userManager , SignInManager<ApplicationUser> signInManage, ITouristRouteRepository touristRouteRepository) {
+        public AuthenticateController(IConfiguration configuration, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManage, ITouristRouteRepository touristRouteRepository)
+        {
 
             _configuration = configuration;
             _userManager = userManager;
@@ -39,12 +40,20 @@ namespace Fakexiecheng.API.controllers
         public async Task<IActionResult> Login([FromBody] LoginDto loginDto)
         {
             // 1 验证用户名密码
-            var loginResult = await _signInManager.PasswordSignInAsync(loginDto.Email,loginDto.Password,false,false );
+            var loginResult = await _signInManager.PasswordSignInAsync(
+                loginDto.Email,
+                loginDto.Password,
+                //多次登录
+                false,
+                //锁定
+                false);
 
-            if (!loginResult.Succeeded) {
+            if (!loginResult.Succeeded)
+            {
 
                 return BadRequest();
             }
+            //根据用户名来保存到本地
             var user = await _userManager.FindByNameAsync(loginDto.Email);
 
 
@@ -56,15 +65,19 @@ namespace Fakexiecheng.API.controllers
             {
                 // sub
                 new Claim(JwtRegisteredClaimNames.Sub, user.Id),
+                //添加用户权限
                 //new Claim(ClaimTypes.Role, "Admin")
             };
+            //拿到用户所有角色（一个用户对应多个角色）
             var roleNames = await _userManager.GetRolesAsync(user);
+
             foreach (var roleName in roleNames)
             {
                 var roleClaim = new Claim(ClaimTypes.Role, roleName);
                 claims.Add(roleClaim);
             }
             // signiture
+            //根据配置文件获取私钥
             var secretByte = Encoding.UTF8.GetBytes(_configuration["Authentication:SecretKey"]);
             var signingKey = new SymmetricSecurityKey(secretByte);
             var signingCredentials = new SigningCredentials(signingKey, signingAlgorithm);
@@ -87,20 +100,21 @@ namespace Fakexiecheng.API.controllers
         }
         [AllowAnonymous]
         [HttpPost("register")]
-        public async Task<IActionResult> Register([FromBody]  RegisterDto registerDto)
+        public async Task<IActionResult> Register([FromBody] RegisterDto registerDto)
 
         {
             // 使用用户名创建用户对象
             var user = new ApplicationUser()
             {
-            UserName =registerDto.Email,
-            Email= registerDto.Email
-            
-            
+                UserName = registerDto.Email,
+                Email = registerDto.Email
+
+
             };
             //2 hash密码，保存用户
             var result = await _userManager.CreateAsync(user, registerDto.Password);
-            if (!result.Succeeded) {
+            if (!result.Succeeded)
+            {
 
                 return BadRequest();
             }
@@ -120,6 +134,6 @@ namespace Fakexiecheng.API.controllers
 
 
     }
-   
+
 
 }

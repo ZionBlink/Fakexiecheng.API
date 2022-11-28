@@ -1,6 +1,4 @@
-﻿using Fakexiecheng.API.Models;
-using System;
-using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -52,6 +50,6 @@ namespace Fakexiecheng.API.Moldes
 
         public DepartureCity? DepartureCity { get; set; }
 
-       
+
     }
 }

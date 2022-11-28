@@ -48,7 +48,7 @@ namespace Fakexiecheng.API
             services.AddIdentity<ApplicationUser, IdentityRole>()
                  .AddEntityFrameworkStores<AppDbContext>();
 
-
+            //jwt服务框架的注入
             services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options =>
                 {
