@@ -118,7 +118,7 @@ namespace Fakexiecheng.API.controllers
 
                 return BadRequest();
             }
-            //3初始化
+            //3初始化购物车
             var shoppingCart = new ShoppingCart()
             {
                 Id = Guid.NewGuid(),

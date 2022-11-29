@@ -43,11 +43,9 @@ namespace Fakexiecheng.API.controllers
             //2使用用户id获得购物车
             var shoppingCart = await _touristRouteRepository.GetShoppingCartByUserId(userId);
 
-
-
-            //
             return Ok(_mapper.Map<ShoppingCartDto>(shoppingCart));
         }
+
         [HttpPost("items")]
         [Authorize(AuthenticationSchemes = "Bearer")]
         public async Task<IActionResult> AddShoppingCartItem(

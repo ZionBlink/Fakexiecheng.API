@@ -1,7 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace Fakexiecheng.API.Dtos
 {
@@ -9,7 +6,7 @@ namespace Fakexiecheng.API.Dtos
     {
         public int Id { get; set; }
 
-       
+
         public Guid TouristRouteId { get; set; }
 
         public TouristRouteDto TouristRoute { get; set; }
@@ -18,14 +15,10 @@ namespace Fakexiecheng.API.Dtos
 
         //public Guid? OrderId { get; set; }
 
-        
+
         public decimal OriginalPrice { get; set; }
-        
-        public double? DiscountPresent
-        {
-            get;
-            set;
-        }
+
+        public double? DiscountPresent { get; set; }
 
     }
 }
